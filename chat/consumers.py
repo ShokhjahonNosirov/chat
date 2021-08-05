@@ -1,4 +1,3 @@
-# chat/consumers.py
 from django.contrib.auth import get_user_model
 import json
 from asgiref.sync import async_to_sync
@@ -12,9 +11,10 @@ class ChatConsumer(WebsocketConsumer):
     def fetch_messages(self, data):
         messages = Message.last_10_messages()
         content = {
+            'command': 'messages',
             'messages': self.messages_to_json(messages)
         }
-        self.send_chat_message(content)
+        self.send_message(content)
 
     def new_message(self, data):
         author = data['from']
@@ -28,7 +28,6 @@ class ChatConsumer(WebsocketConsumer):
         }
         return self.send_chat_message(content )
 
-    
 
     def messages_to_json(self, messages):
         result = []
@@ -48,7 +47,7 @@ class ChatConsumer(WebsocketConsumer):
         'new_message': new_message
     }
 
-
+    # accepting new connection
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
@@ -90,3 +89,6 @@ class ChatConsumer(WebsocketConsumer):
     def chat_message(self, event):
         message = event['message']
         self.send(text_data=json.dumps(message))
+
+
+

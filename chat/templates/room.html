@@ -132,7 +132,7 @@
       } else if (data['command'] === 'new_message'){
         createMessage(data['message']);
       }
-  };
+  };                        
 
   chatSocket.onclose = function(e) {
       console.error('Chat socket closed unexpectedly');
