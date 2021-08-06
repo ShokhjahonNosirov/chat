@@ -122,13 +122,15 @@
   chatSocket.onopen = function(e) {
     fetchMessages();
   }
-
+  // Load Data From Database 
   chatSocket.onmessage = function(e) {
       var data = JSON.parse(e.data);
+
       if (data['command'] === 'messages') {
         for (let i=0; i<data['messages'].length; i++) {
           createMessage(data['messages'][i]);
         }
+  // Print those data       
       } else if (data['command'] === 'new_message'){
         createMessage(data['message']);
       }

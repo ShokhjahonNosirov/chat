@@ -7,9 +7,8 @@ from .models import Message
 User = get_user_model()
 
 class ChatConsumer(WebsocketConsumer):
-    
     def fetch_messages(self, data):
-        messages = Message.last_10_messages()
+        messages = Message.last_10_messages(self.room_name)
         content = {
             'command': 'messages',
             'messages': self.messages_to_json(messages)
@@ -21,12 +20,13 @@ class ChatConsumer(WebsocketConsumer):
         author_user = User.objects.filter(username=author)[0]
         message = Message.objects.create(
             author=author_user, 
-            content=data['message'])
-        content = {
+            content=data['message'], 
+            room=self.room_name)
+        content = {      
             'command': 'new_message',
             'message': self.message_to_json(message)
         }
-        return self.send_chat_message(content )
+        return self.send_chat_message(content)
 
 
     def messages_to_json(self, messages):
@@ -39,7 +39,7 @@ class ChatConsumer(WebsocketConsumer):
         return {
             'author': message.author.username,
             'content': message.content,
-            'timestamp': str(message.timestamp) 
+            'timestamp': str(message.timestamp),
         }
 
     commands = {
@@ -72,8 +72,8 @@ class ChatConsumer(WebsocketConsumer):
         data = json.loads(text_data)
         self.commands[data['command']](self, data)
 
+    # Send message to room group
     def send_chat_message(self, message):
-        # Send message to room group
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
             {
