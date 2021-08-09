@@ -12,7 +12,7 @@ class Message(models.Model):
 
     
     def __str__(self):
-        return self.author.username
+        return self.room
 
     def last_10_messages(room_name):
         mesages_of_room = Message.objects.filter(room = room_name)
